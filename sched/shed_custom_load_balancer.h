@@ -1,0 +1,1 @@
+extern void send_work_custom();

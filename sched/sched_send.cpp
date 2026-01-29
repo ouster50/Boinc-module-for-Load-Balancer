@@ -44,6 +44,7 @@
 #include "sched_assign.h"
 #include "sched_config.h"
 #include "sched_customize.h"
+#include "sched_custom_load_balancer.h"
 #include "sched_hr.h"
 #include "sched_locality.h"
 #include "sched_main.h"
