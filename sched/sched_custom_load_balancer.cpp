@@ -90,6 +90,30 @@ double host_predicted_seconds(
     return estimate_duration(wu, bav) / capacity;
 }
 
+static const double TESTBED_HOST_SLOTS = 6.0;
+
+double host_in_progress_load() {
+    if (!g_request->have_other_results_list) {
+        return 0.0;
+    }
+    return static_cast<double>(g_request->other_results.size());
+}
+
+double round_robin_score(DB_ID_TYPE result_id, DB_ID_TYPE host_id) {
+    const double result_slot = std::fmod(static_cast<double>(result_id), TESTBED_HOST_SLOTS);
+    const double host_slot = std::fmod(static_cast<double>(host_id), TESTBED_HOST_SLOTS);
+    double distance = std::fabs(result_slot - host_slot);
+    distance = std::min(distance, TESTBED_HOST_SLOTS - distance);
+    return TESTBED_HOST_SLOTS / 2.0 - distance;
+}
+
+double weighted_least_loaded_bonus() {
+    const double load = host_in_progress_load();
+    const double speed = get_cpu_number();
+    const double availability = clamp(g_wreq->cpu_available_frac, 0.1, 1.0);
+    return std::log1p(speed * availability / (load + 1.0));
+}
+
 // custom random for determenistic behaviour between iterations
 double random_custom(DB_ID_TYPE result_id, DB_ID_TYPE host_id) {
     unsigned long long value =
@@ -124,6 +148,14 @@ double custom_score(
     if (!strcmp(config.custom_lb_policy, "sjf")) {
         // bigger for small tasks (log() < 0)
         return protected_baseline_score - runtime_order;
+    }
+    if (!strcmp(config.custom_lb_policy, "round_robin")) {
+        return protected_baseline_score + round_robin_score(
+            result_id, g_reply->host.id
+        );
+    }
+    if (!strcmp(config.custom_lb_policy, "weighted_least_loaded")) {
+        return protected_baseline_score + weighted_least_loaded_bonus();
     }
 
     // target task executing timing (from config)
