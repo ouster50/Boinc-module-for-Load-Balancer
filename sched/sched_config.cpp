@@ -90,6 +90,11 @@ int SCHED_CONFIG::parse(FILE* f) {
     max_ncpus = MAX_NCPUS;
     scheduler_log_buffer = 32768;
     version_select_random_factor = 1.;
+    strcpy(custom_lb_policy, "hybrid");
+    custom_lb_target_runtime = 30.;
+    custom_lb_size_weight = 2.;
+    custom_lb_deadline_weight = 5.;
+    custom_lb_runtime_weight = .55;
     maintenance_delay = 3600;
     user_url = true;
     user_country = true;
@@ -327,6 +332,12 @@ int SCHED_CONFIG::parse(FILE* f) {
         if (xp.parse_bool("rte_no_stats", rte_no_stats)) continue;
         if (xp.parse_bool("batch_accel", batch_accel)) continue;
         if (xp.parse_bool("size_classes", size_classes)) continue;
+        if (xp.parse_bool("custom_load_balancer", custom_load_balancer)) continue;
+        if (xp.parse_str("custom_lb_policy", custom_lb_policy, sizeof(custom_lb_policy))) continue;
+        if (xp.parse_double("custom_lb_target_runtime", custom_lb_target_runtime)) continue;
+        if (xp.parse_double("custom_lb_size_weight", custom_lb_size_weight)) continue;
+        if (xp.parse_double("custom_lb_deadline_weight", custom_lb_deadline_weight)) continue;
+        if (xp.parse_double("custom_lb_runtime_weight", custom_lb_runtime_weight)) continue;
 
         //////////// SCHEDULER LOG FLAGS /////////
 
@@ -348,6 +359,7 @@ int SCHED_CONFIG::parse(FILE* f) {
         if (xp.parse_bool("debug_send", debug_send)) continue;
         if (xp.parse_bool("debug_send_job", debug_send_job)) continue;
         if (xp.parse_bool("debug_send_scan", debug_send_scan)) continue;
+        if (xp.parse_bool("debug_custom_load_balancer", debug_custom_load_balancer)) continue;
         if (xp.parse_bool("debug_user_messages", debug_user_messages)) continue;
         if (xp.parse_bool("debug_vda", debug_vda)) continue;
         if (xp.parse_bool("debug_version_select", debug_version_select)) continue;

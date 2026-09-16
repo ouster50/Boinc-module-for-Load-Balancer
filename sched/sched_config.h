@@ -194,6 +194,18 @@ struct SCHED_CONFIG {
         // send high-prio jobs only to low-turnaround hosts
     bool size_classes;
         // use size classes
+    bool custom_load_balancer;
+        // flag of using custom balancing
+    char custom_lb_policy[32];
+        // policy type
+    double custom_lb_target_runtime;
+        // duration of single job
+    double custom_lb_size_weight;
+        // alias for w_size
+    double custom_lb_deadline_weight;
+        // alias for w_deadline
+    double custom_lb_runtime_weight;
+        // alias for w_runtime
 
     // time intervals
     double maintenance_delay;
@@ -222,6 +234,8 @@ struct SCHED_CONFIG {
         // job dispatch at the level of scans through array
     bool debug_send_job;
         // job dispatch: why individual jobs weren't sent (most verbose)
+    bool debug_custom_load_balancer;
+        // flag for debug
     bool debug_user_messages;
     bool debug_vda;
     bool debug_version_select;

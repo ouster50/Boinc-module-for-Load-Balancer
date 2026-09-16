@@ -1701,6 +1701,9 @@ int update_host_app_versions(vector<SCHED_DB_RESULT>& results, int hostid) {
 
 void send_work() {
     int retval;
+    timeval dispatch_start, dispatch_finish;
+    int jobs_before_dispatch = 0;
+    const char* dispatch_policy = "not_run";
 
     if (all_apps_use_hr && hr_unknown_platform(g_request->host)) {
         log_messages.printf(MSG_NORMAL,
@@ -1756,7 +1759,15 @@ void send_work() {
         goto done;
     }
 
-    if (config.locality_scheduler_fraction > 0) {
+    gettimeofday(&dispatch_start, NULL);
+    jobs_before_dispatch = g_wreq->njobs_sent;
+    dispatch_policy = "score";
+
+    if (config.custom_load_balancer) {
+        dispatch_policy = config.custom_lb_policy;
+        send_work_custom();
+    } else if (config.locality_scheduler_fraction > 0) {
+        dispatch_policy = "mixed_locality_old";
         if (drand() < config.locality_scheduler_fraction) {
             if (config.debug_locality) {
                 log_messages.printf(MSG_NORMAL,
@@ -1825,11 +1836,27 @@ void send_work() {
 
         }
     } else if (config.locality_scheduling) {
+        dispatch_policy = "locality";
         send_work_locality();
     } else if (config.sched_old) {
+        dispatch_policy = "old";
         send_work_old();
     } else {
         send_work_score();
+    }
+
+    gettimeofday(&dispatch_finish, NULL);
+    if (config.debug_custom_load_balancer) {
+        long dispatch_us =
+            (dispatch_finish.tv_sec-dispatch_start.tv_sec)*1000000L
+            + dispatch_finish.tv_usec-dispatch_start.tv_usec;
+        log_messages.printf(
+            MSG_NORMAL,
+            "[scheduler_metrics] policy=%s host_id=%lu jobs_sent=%d "
+            "elapsed_us=%ld\n",
+            dispatch_policy, g_reply->host.id,
+            g_wreq->njobs_sent-jobs_before_dispatch, dispatch_us
+        );
     }
 
 done:

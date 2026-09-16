@@ -45,6 +45,7 @@ OBJ = \
     sched_assign.o \
     sched_check.o \
     sched_config.o \
+    sched_custom_load_balancer.o \
     sched_customize.o \
     sched_files.o \
     sched_host.o \
@@ -60,6 +61,7 @@ OBJ = \
     sched_send.o \
     sched_shmem.o \
     sched_timezone.o \
+    sched_vda.o \
     sched_version.o \
     sched_types.o \
     time_stats_log.o
@@ -76,6 +78,7 @@ SRC = \
     sched_assign.cpp \
     sched_check.cpp \
     sched_config.cpp \
+    sched_custom_load_balancer.cpp \
     sched_customize.cpp \
     sched_files.cpp \
     sched_host.cpp \
@@ -91,6 +94,7 @@ SRC = \
     sched_send.cpp \
     sched_shmem.cpp \
     sched_timezone.cpp \
+    ../vda/sched_vda.cpp \
     sched_version.cpp \
     sched_types.cpp \
     time_stats_log.cpp \
@@ -107,6 +111,9 @@ LIBS = ../lib/boinc.a libsched.a \
 
 .cpp.o:
 	$(CC) -c -o $*.o $<
+
+sched_vda.o: ../vda/sched_vda.cpp
+	$(CC) -c -o $@ $<
 
 cgi: $(OBJ)
 	$(CC) $(OBJ) $(LIBS) -o cgi

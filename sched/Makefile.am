@@ -142,6 +142,7 @@ noinst_HEADERS = \
     assimilate_handler.h \
     handle_request.h \
     plan_class_spec.h \
+    sched_custom_load_balancer.h \
     sched_main.h \
     sched_locality.h \
     sched_nci.h \
@@ -165,6 +166,7 @@ cgi_sources = \
     sched_array.cpp \
     sched_assign.cpp \
     sched_check.cpp \
+    sched_custom_load_balancer.cpp \
     sched_customize.cpp \
     sched_files.cpp \
     sched_host.cpp \
