@@ -186,7 +186,7 @@ double custom_score(
     // higher for smaller tasks on low-available hosts and large tasks on high-available hosts
     const double host_fit = (std::log1p(host_speed) - std::log1p(effective_predicted)) * availability * availability;
 
-    // tuning penalty for large and medium tasks to smakller hosts
+    // tuning penalty for large and medium tasks to smaller hosts
     // also helps to divide similar tasks between similar hosts
     double slow_host_long_penalty = 0.0;
     if (predicted_seconds > target_runtime * 0.5 && host_speed < 2.0) {
@@ -196,7 +196,7 @@ double custom_score(
     }
 
     // scaling baseline score based on availability
-    const double hybrid_baseline = (25.0 + 55.0 * availability) * baseline_score;
+    const double hybrid_baseline = (10.0 + 10.0 * availability) * baseline_score;
 
     return hybrid_baseline
         + config.custom_lb_size_weight * size_affinity
