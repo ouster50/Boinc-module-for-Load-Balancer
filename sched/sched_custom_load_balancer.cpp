@@ -189,10 +189,10 @@ double custom_score(
     // tuning penalty for large and medium tasks to smaller hosts
     // also helps to divide similar tasks between similar hosts
     double slow_host_long_penalty = 0.0;
-    if (predicted_seconds > target_runtime * 0.5 && host_speed < 2.0) {
-        slow_host_long_penalty = 1.5 * (predicted_seconds / target_runtime) * (2.0 - host_speed) / availability;
-    } else if (predicted_seconds > target_runtime && host_speed < 4.0) {
-        slow_host_long_penalty = 0.5 * (predicted_seconds / target_runtime - 1.0) * (4.0 - host_speed) / availability;
+    if (predicted_seconds > target_runtime) {
+        slow_host_long_penalty = 0.5 * (predicted_seconds / target_runtime - 1.0);
+    } else if (predicted_seconds > target_runtime * 0.5) {
+        slow_host_long_penalty = 1.5 * (predicted_seconds / target_runtime);
     }
 
     // scaling baseline score based on availability
@@ -202,7 +202,7 @@ double custom_score(
         + config.custom_lb_size_weight * size_affinity
         + config.custom_lb_deadline_weight * deadline_pressure
         - config.custom_lb_runtime_weight * runtime_penalty
-        + config.custom_lb_size_weight * 0.05 * host_fit
+        + config.custom_lb_size_weight * host_fit
         - config.custom_lb_runtime_weight * slow_host_long_penalty;
 }
 
